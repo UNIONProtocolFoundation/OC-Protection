@@ -27,6 +27,10 @@ contract UnionAssetPool is UnionERC20Pool, IAssetPool {
         return uint32(1010000);
     }
 
+    function poolType() public override view returns (uint32){
+        return uint32(1);
+    }
+
      /**
     * returns the data of the Writer:
     *    1) current amount of pUNN liquidity tokens that User has on the balance.
@@ -61,7 +65,7 @@ contract UnionAssetPool is UnionERC20Pool, IAssetPool {
  
         ocProtectionStorage = IOCProtectionStorage(_ocProtections);
 
-        lockupPeriod = 1 days;
+        lockupPeriod = 5 days;
 
         assetToken = _assetToken;
     }

@@ -12,6 +12,7 @@ interface IPool{
     function getBasicTokenDecimals() external view returns (uint256);
     function getPoolStat() external view returns (uint256, uint256, uint256,uint256, uint256, uint64, uint256);
     function version() external view returns (uint32);
+    function poolType() external view returns (uint32);
 }
 
 interface IAssetPool is IPool{

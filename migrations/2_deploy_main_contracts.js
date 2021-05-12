@@ -16,7 +16,7 @@ const decimals = toBN('10').pow(toBN('18'));
 const { deployProxy } = require('@openzeppelin/truffle-upgrades');
  
 module.exports = async function (deployer, network, accounts) {
-  let signatureWallet = '0x84a5B4B863610989197C957c8816cF6a3B91adD2';
+  let signatureWallet = '0x03F7b2Da017b94048f2A0E2578923F2fb1899bbd';
   let daiTokenAddress;
   let daiEthChainlinkFeed;
   let btcUsdChainlinkFeed;
@@ -24,7 +24,7 @@ module.exports = async function (deployer, network, accounts) {
   let wETHtoken;
   let wBTCtoken;
   let usdcAddress;
-  if(network == 'rinkeby'){
+  if(network == 'rinkeby' || network == 'rinkeby-fork'){
     let uniswapRouterAddress = '0x7D8AB70Da03ef8695c38C4AE3942015c540e2439';
     wBTCtoken = '0x19cDab1A0b017dc97f733FC2304Dc7aEC678a5E9';
     wETHtoken = '0xc778417e063141139fce010982780140aa0cd5ab';
@@ -51,7 +51,7 @@ module.exports = async function (deployer, network, accounts) {
     daiEthChainlinkFeed = '0x74825DbC8BF76CC4e9494d0ecB210f676Efa001D';
     btcUsdChainlinkFeed = '0xECe365B379E1dD183B20fc5f022230C044d51404';
   }
-  else if(network == 'test' || network =='mainnet'){
+  else if(network == 'test' || network =='mainnet' || network =='mainnet-fork'){
     wBTCtoken = '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599';
     wETHtoken = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2';
     usdcAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
@@ -59,6 +59,7 @@ module.exports = async function (deployer, network, accounts) {
     // daiTokenAddress = usdcAddress;
     daiEthChainlinkFeed = '0x773616E4d11A78F511299002da57A0a94577F1f4';
     btcUsdChainlinkFeed = '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c';
+    usdcETHPriceFeed = '0x986b5E1e1755e3C2440e960477f25201B0a8bbD4';
   }
 
   let UnionERC20PoolBeaconAddress;
@@ -125,21 +126,21 @@ module.exports = async function (deployer, network, accounts) {
   await unionRouter.setUUNNToken.sendTransaction(uUNNTokenInstance.address, {from:accounts[0]});
 
 // create pool instances for DAI/ETH and DAI/BTC
-console.log("Deploying DAI/ETH and DAI/BTC pools");
-let unionDAIPoolETH;
+console.log("Deploying USDC/ETH pool");
+// let unionDAIPoolETH;
 let unionUSDCPoolETH;
-let unionDAIPoolBTC;
-  await BeaconProxy.new(UnionERC20PoolBeaconAddress, web3.utils.hexToBytes('0x')).then(function(BeaconProxy){
-    return UnionAssetPool.at(BeaconProxy.address);
-  }).then(function (instance){
-    unionDAIPoolETH = instance;
-  });
+// let unionDAIPoolBTC;
+  // await BeaconProxy.new(UnionERC20PoolBeaconAddress, web3.utils.hexToBytes('0x')).then(function(BeaconProxy){
+  //   return UnionAssetPool.at(BeaconProxy.address);
+  // }).then(function (instance){
+  //   unionDAIPoolETH = instance;
+  // });
 
-  await BeaconProxy.new(UnionERC20PoolBeaconAddress, web3.utils.hexToBytes('0x')).then(function(BeaconProxy){
-    return UnionAssetPool.at(BeaconProxy.address);
-  }).then(function (instance){
-    unionDAIPoolBTC = instance;
-  });
+  // await BeaconProxy.new(UnionERC20PoolBeaconAddress, web3.utils.hexToBytes('0x')).then(function(BeaconProxy){
+  //   return UnionAssetPool.at(BeaconProxy.address);
+  // }).then(function (instance){
+  //   unionDAIPoolBTC = instance;
+  // });
 
   await BeaconProxy.new(UnionERC20PoolBeaconAddress, web3.utils.hexToBytes('0x')).then(function(BeaconProxy){
     return UnionAssetPool.at(BeaconProxy.address);
@@ -147,17 +148,17 @@ let unionDAIPoolBTC;
     unionUSDCPoolETH = instance;
   });
 
-console.log ("UnionAssetPool Proxy Instance (DAI POOL) for ETH:", unionDAIPoolETH.address);
-await unionDAIPoolETH.initialize.sendTransaction(accounts[0], daiTokenAddress, wETHtoken, ocProtectionsInstance.address, daiEthChainlinkFeed,true,'Union DAI/ETH Asset Pool', {from:accounts[0]});
-console.log ("UnionAssetPool Proxy Instance (DAI POOL) for BTC:", unionDAIPoolBTC.address);
-await unionDAIPoolBTC.initialize.sendTransaction(accounts[0], daiTokenAddress, wBTCtoken, ocProtectionsInstance.address, btcUsdChainlinkFeed,false,'Union DAI/BTC Asset Pool', {from:accounts[0]});
+// console.log ("UnionAssetPool Proxy Instance (DAI POOL) for ETH:", unionDAIPoolETH.address);
+// await unionDAIPoolETH.initialize.sendTransaction(accounts[0], daiTokenAddress, wETHtoken, ocProtectionsInstance.address, daiEthChainlinkFeed,true,'Union DAI/ETH Asset Pool', {from:accounts[0]});
+// console.log ("UnionAssetPool Proxy Instance (DAI POOL) for BTC:", unionDAIPoolBTC.address);
+// await unionDAIPoolBTC.initialize.sendTransaction(accounts[0], daiTokenAddress, wBTCtoken, ocProtectionsInstance.address, btcUsdChainlinkFeed,false,'Union DAI/BTC Asset Pool', {from:accounts[0]});
 console.log ("UnionAssetPool Proxy Instance (USDC POOL) for ETH:", unionUSDCPoolETH.address);
 await unionUSDCPoolETH.initialize.sendTransaction(accounts[0], usdcAddress, wETHtoken, ocProtectionsInstance.address, usdcETHPriceFeed,true,'Union USDC/ETH Asset Pool', {from:accounts[0]});
-await unionDAIPoolETH.grantRole.sendTransaction(web3.utils.keccak256('MCR_PROVIDER'), signatureWallet, {from:accounts[0]});
-await unionDAIPoolBTC.grantRole.sendTransaction(web3.utils.keccak256('MCR_PROVIDER'), signatureWallet, {from:accounts[0]});
+// await unionDAIPoolETH.grantRole.sendTransaction(web3.utils.keccak256('MCR_PROVIDER'), signatureWallet, {from:accounts[0]});
+// await unionDAIPoolBTC.grantRole.sendTransaction(web3.utils.keccak256('MCR_PROVIDER'), signatureWallet, {from:accounts[0]});
 await unionUSDCPoolETH.grantRole.sendTransaction(web3.utils.keccak256('MCR_PROVIDER'), signatureWallet, {from:accounts[0]});
 console.log("enabling OC protection for tokens: ",wETHtoken," ",wBTCtoken);
-await unionRouter.addCollateralProtection.sendTransaction(wETHtoken,unionDAIPoolETH.address,ocProtectionsInstance.address, {from:accounts[0]});
-await unionRouter.addCollateralProtection.sendTransaction(wBTCtoken,unionDAIPoolBTC.address,ocProtectionsInstance.address, {from:accounts[0]});
+await unionRouter.addCollateralProtection.sendTransaction(wETHtoken,unionUSDCPoolETH.address,ocProtectionsInstance.address, {from:accounts[0]});
+// await unionRouter.addCollateralProtection.sendTransaction(wBTCtoken,unionDAIPoolBTC.address,ocProtectionsInstance.address, {from:accounts[0]});
   
 };
